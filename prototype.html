@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocket Nori - Conversation Intelligence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background: #ffffff;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #6366f1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-section {
+            padding: 16px 0;
+        }
+
+        .nav-section-title {
+            padding: 8px 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #4b5563;
+            font-size: 14px;
+        }
+
+        .nav-item:hover {
+            background: #f3f4f6;
+        }
+
+        .nav-item.active {
+            background: #eef2ff;
+            color: #6366f1;
+            font-weight: 500;
+            border-left: 3px solid #6366f1;
+            padding-left: 17px;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .streams-list, .topics-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .stream-item, .topic-item {
+            padding: 8px 20px 8px 52px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #6b7280;
+            transition: all 0.2s;
+        }
+
+        .stream-item:hover, .topic-item:hover {
+            background: #f9fafb;
+            color: #1f2937;
+        }
+
+        .add-stream-btn {
+            padding: 8px 20px 8px 52px;
+            font-size: 13px;
+            color: #6366f1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #6366f1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+        }
+
+        /* Home Screen */
+        .home-greeting {
+            margin-bottom: 32px;
+        }
+
+        .home-greeting h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .home-greeting p {
+            font-size: 15px;
+            color: #6b7280;
+        }
+
+        .home-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .meeting-card {
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .meeting-card:hover {
+            border-color: #6366f1;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.1);
+        }
+
+        .meeting-card.upcoming {
+            background: #f0fdf4;
+            border-color: #86efac;
+        }
+
+        .meeting-time {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 6px;
+        }
+
+        .meeting-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .meeting-meta {
+            font-size: 13px;
+            color: #6b7280;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .meeting-brief {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 14px;
+            color: #4b5563;
+        }
+
+        .action-item {
+            padding: 12px;
+            border-left: 3px solid #fbbf24;
+            background: #fffbeb;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .action-text {
+            font-size: 14px;
+            color: #1a1a1a;
+            margin-bottom: 6px;
+        }
+
+        .action-meta {
+            font-size: 12px;
+            color: #6b7280;
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Meeting Summary */
+        .summary-container {
+            max-width: 900px;
+        }
+
+        .summary-header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .summary-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .summary-meta-row {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .summary-content {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .executive-summary {
+            margin-bottom: 32px;
+        }
+
+        .executive-summary h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+        }
+
+        .executive-summary ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .executive-summary li {
+            padding-left: 24px;
+            position: relative;
+            margin-bottom: 8px;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        .executive-summary li:before {
+            content: "•";
+            position: absolute;
+            left: 8px;
+            color: #6366f1;
+            font-weight: bold;
+        }
+
+        .topic-section {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .topic-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .topic-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .topic-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .topic-arc-badge {
+            padding: 4px 10px;
+            background: #eef2ff;
+            color: #6366f1;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .topic-arc-badge:hover {
+            background: #ddd6fe;
+        }
+
+        .topic-content {
+            color: #4b5563;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .topic-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .topic-action-btn {
+            padding: 6px 12px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #4b5563;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .topic-action-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .actions-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .actions-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .feedback-bar {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-top: 24px;
+        }
+
+        .feedback-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .feedback-btn:hover {
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+
+        /* Chat Interface */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 130px);
+            max-width: 900px;
+        }
+
+        .chat-scope-selector {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .scope-chip {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #4b5563;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .scope-chip.active {
+            background: #6366f1;
+            color: white;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+
+        .chat-message {
+            margin-bottom: 24px;
+        }
+
+        .chat-message.user {
+            text-align: right;
+        }
+
+        .message-bubble {
+            display: inline-block;
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .chat-message.user .message-bubble {
+            background: #6366f1;
+            color: white;
+        }
+
+        .chat-message.assistant .message-bubble {
+            background: #f3f4f6;
+            color: #1a1a1a;
+            text-align: left;
+        }
+
+        .message-source {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .chat-input-area {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: none;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .send-btn {
+            padding: 12px 24px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .send-btn:hover {
+            background: #4f46e5;
+        }
+
+        /* Topic Arc View */
+        .arc-timeline {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .arc-header {
+            margin-bottom: 24px;
+        }
+
+        .arc-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .arc-status {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #dcfce7;
+            color: #16a34a;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .timeline-item {
+            padding: 20px;
+            border-left: 3px solid #e5e7eb;
+            margin-left: 12px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .timeline-item:before {
+            content: "";
+            position: absolute;
+            left: -8px;
+            top: 24px;
+            width: 13px;
+            height: 13px;
+            background: #6366f1;
+            border-radius: 50%;
+        }
+
+        .timeline-date {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .timeline-meeting {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+
+        .timeline-content {
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        /* Meetings Calendar View */
+        .calendar-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 4px;
+            background: white;
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #4b5563;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-btn.active {
+            background: #6366f1;
+            color: white;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 16px;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+        }
+
+        .calendar-day {
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            min-height: 120px;
+        }
+
+        .day-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .day-meeting {
+            padding: 6px 8px;
+            background: #eef2ff;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 6px;
+            cursor: pointer;
+        }
+
+        /* Streams View */
+        .stream-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .stream-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-primary {
+            padding: 10px 20px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #4f46e5;
+        }
+
+        .meetings-list {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        /* Actions Page */
+        .actions-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .action-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #fbbf24;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .action-card.completed {
+            border-left-color: #86efac;
+            opacity: 0.7;
+        }
+
+        .action-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .action-description {
+            font-size: 15px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .complete-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .action-card-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal h3 {
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #4b5563;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+
+        .empty-state p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f3f4f6;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
+        .notification-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    🍙 Pocket Nori
+                </div>
+            </div>
+            
+            <nav class="nav-section">
+                <div class="nav-section-title">Primary</div>
+                <div class="nav-item active" data-page="home">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    Home
+                </div>
+                <div class="nav-item" data-page="meetings">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    Meetings
+                </div>
+                <div class="nav-item" data-page="chat">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                    Chat
+                </div>
+                <div class="nav-item" data-page="actions">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    Actions
+                    <span class="notification-badge"></span>
+                </div>
+                <div class="nav-item" data-page="shared">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                    </svg>
+                    Shared with Me
+                </div>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-section-title">Organization</div>
+                <div class="nav-item" data-page="streams">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                    </svg>
+                    Streams
+                </div>
+                <div class="streams-list">
+                    <div class="stream-item" data-stream="ceo">CEO Meetings</div>
+                    <div class="stream-item" data-stream="clients">Client Calls</div>
+                    <div class="stream-item" data-stream="product">Product Syncs</div>
+                </div>
+                <div class="add-stream-btn">
+                    + New Stream
+                </div>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-section-title">Intelligence</div>
+                <div class="nav-item" data-page="topics">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                    </svg>
+                    Topics
+                </div>
+                <div class="topics-list">
+                    <div class="topic-item" data-topic="pricing">Pricing Model</div>
+                    <div class="topic-item" data-topic="hiring">Q2 Hiring Plans</div>
+                    <div class="topic-item" data-topic="checkout">Checkout Redesign</div>
+                    <div class="topic-item" data-topic="budget">Budget Reallocation</div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <h1 class="page-title">Home</h1>
+                <div class="user-menu">
+                    <div class="user-avatar">MK</div>
+                </div>
+            </div>
+
+            <div class="content-area" id="contentArea">
+                <!-- Content will be dynamically loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for creating new stream -->
+    <div class="modal-overlay" id="streamModal">
+        <div class="modal">
+            <h3>Create New Stream</h3>
+            <div class="form-group">
+                <label class="form-label">Stream Name</label>
+                <input type="text" class="form-input" id="streamNameInput" placeholder="e.g., Agency Calls">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeStreamModal()">Cancel</button>
+                <button class="btn-primary" onclick="createStream()">Create Stream</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for tagging topic to arc -->
+    <div class="modal-overlay" id="topicArcModal">
+        <div class="modal">
+            <h3>Link Topic to Arc</h3>
+            <div class="form-group">
+                <label class="form-label">Select existing arc or create new</label>
+                <select class="form-input" id="arcSelector">
+                    <option value="">-- Select Arc --</option>
+                    <option value="pricing">Pricing Model Arc</option>
+                    <option value="hiring">Q2 Hiring Plans Arc</option>
+                    <option value="checkout">Checkout Redesign Arc</option>
+                    <option value="new">+ Create New Arc</option>
+                </select>
+            </div>
+            <div class="form-group" id="newArcNameGroup" style="display:none;">
+                <label class="form-label">New Arc Name</label>
+                <input type="text" class="form-input" id="newArcNameInput" placeholder="Enter arc name">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeTopicArcModal()">Cancel</button>
+                <button class="btn-primary" onclick="linkTopicToArc()">Link Topic</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        const state = {
+            currentPage: 'home',
+            meetings: [
+                {
+                    id: 1,
+                    title: 'Weekly Product Sync',
+                    time: '10:00 AM - 11:00 AM',
+                    date: 'Today',
+                    type: 'upcoming',
+                    participants: 'Sarah, Mike, David',
+                    brief: 'Last discussed: Checkout redesign implementation timeline. Pending: API feasibility review from engineering.'
+                },
+                {
+                    id: 2,
+                    title: 'CEO Monthly Review',
+                    time: '2:00 PM - 3:00 PM',
+                    date: 'Today',
+                    type: 'upcoming',
+                    participants: 'CEO, Leadership Team',
+                    brief: 'Previous topics: Q2 budget approval, hiring freeze discussion. Follow-up needed on sales targets.'
+                },
+                {
+                    id: 3,
+                    title: 'Client: Acme Corp Strategy',
+                    time: '9:00 AM - 10:00 AM',
+                    date: 'Yesterday',
+                    type: 'completed',
+                    participants: 'Client team, Sales',
+                    hasSummary: true
+                },
+                {
+                    id: 4,
+                    title: 'Engineering Standup',
+                    time: '9:30 AM - 9:45 AM',
+                    date: 'Yesterday',
+                    type: 'completed',
+                    participants: 'Engineering Team',
+                    hasSummary: true
+                }
+            ],
+            actions: [
+                {
+                    id: 1,
+                    description: 'Review API feasibility for single-page checkout',
+                    deadline: 'Mar 28',
+                    source: 'Product Sync - Mar 25',
+                    completed: false
+                },
+                {
+                    id: 2,
+                    description: 'Prepare Q2 budget breakdown for CEO review',
+                    deadline: 'Mar 29',
+                    source: 'CEO Monthly - Mar 20',
+                    completed: false
+                },
+                {
+                    id: 3,
+                    description: 'Send pricing proposal to Acme Corp',
+                    deadline: 'Mar 27',
+                    source: 'Client Call - Mar 26',
+                    completed: false
+                }
+            ],
+            streams: [
+                { id: 'ceo', name: 'CEO Meetings', meetingCount: 8 },
+                { id: 'clients', name: 'Client Calls', meetingCount: 12 },
+                { id: 'product', name: 'Product Syncs', meetingCount: 15 }
+            ],
+            topics: [
+                { id: 'pricing', name: 'Pricing Model', meetingCount: 5 },
+                { id: 'hiring', name: 'Q2 Hiring Plans', meetingCount: 4 },
+                { id: 'checkout', name: 'Checkout Redesign', meetingCount: 6 },
+                { id: 'budget', name: 'Budget Reallocation', meetingCount: 4 }
+            ],
+            currentTopic: null
+        };
+
+        // Page rendering functions
+        function renderHome() {
+            const upcomingMeetings = state.meetings.filter(m => m.type === 'upcoming');
+            const pendingActions = state.actions.filter(a => !a.completed);
+
+            return `
+                <div class="home-greeting">
+                    <h2>Good morning, Murali</h2>
+                    <p>You have ${upcomingMeetings.length} meetings scheduled for today</p>
+                </div>
+
+                <div class="home-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Today's Meetings</h3>
+                    </div>
+                    ${upcomingMeetings.map(meeting => `
+                        <div class="meeting-card ${meeting.type}" onclick="viewMeeting(${meeting.id})">
+                            <div class="meeting-time">${meeting.time}</div>
+                            <div class="meeting-title">${meeting.title}</div>
+                            <div class="meeting-meta">
+                                <span>👥 ${meeting.participants}</span>
+                            </div>
+                            ${meeting.brief ? `
+                                <div class="meeting-brief">
+                                    <strong>📋 Pre-meeting Brief:</strong><br>
+                                    ${meeting.brief}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="home-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Pending Actions This Week</h3>
+                    </div>
+                    ${pendingActions.map(action => `
+                        <div class="action-item">
+                            <div class="action-text">${action.description}</div>
+                            <div class="action-meta">
+                                <span>📅 ${action.deadline}</span>
+                                <span>📎 ${action.source}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderMeetingSummary(meetingId) {
+            return `
+                <div class="summary-container">
+                    <div class="summary-header">
+                        <button class="btn-secondary" onclick="navigateToPage('home')" style="margin-bottom: 16px;">← Back</button>
+                        <h2 class="summary-title">Client: Acme Corp Strategy Discussion</h2>
+                        <div class="summary-meta-row">
+                            <span>📅 March 26, 2026 • 9:00 AM - 10:00 AM</span>
+                            <span>👥 Client team, Sales team</span>
+                            <span>🏷️ Client Call</span>
+                        </div>
+                    </div>
+
+                    <div class="summary-content">
+                        <div class="executive-summary">
+                            <h3>Executive Summary</h3>
+                            <ul>
+                                <li>Client expressed strong interest in enterprise pricing tier with annual commitment</li>
+                                <li>Raised concerns about current checkout flow causing 15% cart abandonment</li>
+                                <li>Requested custom integration with their internal CRM system</li>
+                                <li>Decision: Sales to prepare custom pricing proposal by March 28</li>
+                            </ul>
+                        </div>
+
+                        <div class="topic-section">
+                            <div class="topic-header">
+                                <span class="topic-label">💰 Pricing Discussion</span>
+                                <span class="topic-arc-badge" onclick="viewTopicArc('pricing')">
+                                    Part of "Pricing Model" Arc →
+                                </span>
+                            </div>
+                            <div class="topic-content">
+                                Client team indicated budget approval for $50K-75K annual spend. They prefer enterprise tier with dedicated support and SLA guarantees. Mentioned competitor pricing as reference point. Discussion revealed they're comparing us against two other vendors.
+                            </div>
+                            <div class="topic-actions">
+                                <button class="topic-action-btn" onclick="openTopicArcModal()">Tag to Arc</button>
+                                <button class="topic-action-btn">Remove from Arc</button>
+                            </div>
+                        </div>
+
+                        <div class="topic-section">
+                            <div class="topic-header">
+                                <span class="topic-label">🛒 Checkout Issues</span>
+                                <span class="topic-arc-badge" onclick="viewTopicArc('checkout')">
+                                    Part of "Checkout Redesign" Arc →
+                                </span>
+                            </div>
+                            <div class="topic-content">
+                                Client reported 15% cart abandonment rate from their users. Main friction points: multi-step process, lack of guest checkout option, and unclear pricing breakdown. This aligns with engineering's ongoing checkout redesign initiative. Client's data provides real-world validation for the redesign priority.
+                            </div>
+                            <div class="topic-actions">
+                                <button class="topic-action-btn" onclick="openTopicArcModal()">Tag to Arc</button>
+                                <button class="topic-action-btn">Remove from Arc</button>
+                            </div>
+                        </div>
+
+                        <div class="topic-section">
+                            <div class="topic-header">
+                                <span class="topic-label">🔗 CRM Integration Request</span>
+                            </div>
+                            <div class="topic-content">
+                                Client uses Salesforce internally and wants bi-directional sync of customer data. Engineering team needs to assess feasibility and timeline. This could be a dealbreaker if not available within their implementation timeline (Q2 2026).
+                            </div>
+                            <div class="topic-actions">
+                                <button class="topic-action-btn" onclick="openTopicArcModal()">Tag to Arc</button>
+                                <button class="topic-action-btn">Create New Arc</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="actions-section">
+                        <h3>Action Items</h3>
+                        <div class="action-item">
+                            <div class="action-text">Prepare custom enterprise pricing proposal with annual commitment options</div>
+                            <div class="action-meta">
+                                <span>👤 Sales Team</span>
+                                <span>📅 Due: March 28</span>
+                            </div>
+                        </div>
+                        <div class="action-item">
+                            <div class="action-text">Assess feasibility and timeline for Salesforce integration</div>
+                            <div class="action-meta">
+                                <span>👤 Engineering Team</span>
+                                <span>📅 Due: March 29</span>
+                            </div>
+                        </div>
+                        <div class="action-item">
+                            <div class="action-text">Share checkout redesign mockups with client for feedback</div>
+                            <div class="action-meta">
+                                <span>👤 Product Team</span>
+                                <span>📅 Due: April 2</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feedback-bar">
+                        <button class="feedback-btn">👍 Helpful</button>
+                        <button class="feedback-btn">👎 Not Helpful</button>
+                        <button class="feedback-btn">💬 Add Comment</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderChat() {
+            return `
+                <div class="chat-container">
+                    <div class="chat-scope-selector">
+                        <div class="scope-chip active">All Meetings</div>
+                        <div class="scope-chip">CEO Meetings</div>
+                        <div class="scope-chip">Product Syncs</div>
+                        <div class="scope-chip">Pricing Model Arc</div>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-message assistant">
+                            <div class="message-bubble">
+                                Hello! I can help you find information from your meetings, topic arcs, and streams. What would you like to know?
+                            </div>
+                        </div>
+
+                        <div class="chat-message user">
+                            <div class="message-bubble">
+                                What has been discussed about pricing in the last month?
+                            </div>
+                        </div>
+
+                        <div class="chat-message assistant">
+                            <div class="message-bubble">
+                                Based on your meetings over the last month, pricing has been discussed in 5 conversations:<br><br>
+
+                                <strong>March 26 - Client: Acme Corp Strategy</strong><br>
+                                Client expressed interest in enterprise tier at $50K-75K annual. Comparing against two competitors.<br><br>
+
+                                <strong>March 20 - CEO Monthly Review</strong><br>
+                                CEO pushed for freemium model to accelerate user acquisition. Sales team raised concerns about revenue targets.<br><br>
+
+                                <strong>March 14 - Product Strategy Session</strong><br>
+                                Team decided on three-tier structure: Free, Professional ($29/mo), Enterprise (custom).<br><br>
+
+                                <strong>March 8 - Sales Team Sync</strong><br>
+                                Sales proposed enterprise-only model. Discussion tabled pending market research.<br><br>
+
+                                <strong>March 1 - Product Launch Planning</strong><br>
+                                Initial proposal for freemium with feature gates discussed and approved by leadership.
+                            </div>
+                            <div class="message-source">
+                                Sources: 5 meetings from "Pricing Model" topic arc
+                            </div>
+                        </div>
+
+                        <div class="chat-message user">
+                            <div class="message-bubble">
+                                Draft a Slack message summarizing the pricing decision for the engineering team
+                            </div>
+                        </div>
+
+                        <div class="chat-message assistant">
+                            <div class="message-bubble">
+                                Here's a draft message you can copy:<br><br>
+
+                                <em>Hi team - Quick update on pricing structure following discussions over the past month:<br><br>
+
+                                We've finalized a three-tier model:<br>
+                                • Free tier (freemium) - to drive user acquisition<br>
+                                • Professional ($29/mo) - for individual users<br>
+                                • Enterprise (custom pricing) - annual contracts, dedicated support<br><br>
+
+                                This was decided in our March 14 strategy session and reaffirmed by CEO in the March 20 review. The freemium approach won over enterprise-only based on market feedback and growth strategy.<br><br>
+
+                                Latest development: Acme Corp (our pilot client) is interested in the Enterprise tier at $50K-75K annual range. Sales is preparing a custom proposal.<br><br>
+
+                                Let me know if you have questions!</em><br><br>
+
+                                <button class="btn-secondary" style="margin-top: 12px;">📋 Copy to Clipboard</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <textarea class="chat-input" placeholder="Ask about your meetings, topics, or request a summary..." rows="2"></textarea>
+                        <button class="send-btn">Send</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderActions() {
+            return `
+                <div class="actions-grid">
+                    ${state.actions.map(action => `
+                        <div class="action-card ${action.completed ? 'completed' : ''}">
+                            <div class="action-card-header">
+                                <div class="action-description">${action.description}</div>
+                                <input type="checkbox" class="complete-checkbox" ${action.completed ? 'checked' : ''} onchange="toggleAction(${action.id})">
+                            </div>
+                            <div class="action-card-meta">
+                                <span>📅 Due: ${action.deadline}</span>
+                                <span>📎 From: ${action.source}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderTopicArc(topicId) {
+            const topicData = {
+                pricing: {
+                    name: 'Pricing Model',
+                    status: 'Active',
+                    timeline: [
+                        {
+                            date: 'March 1, 2026',
+                            meeting: 'Product Launch Planning',
+                            content: 'Initial freemium proposal presented. Team consensus to start with free tier to drive adoption, then convert to paid plans. Decision: Implement freemium model.'
+                        },
+                        {
+                            date: 'March 8, 2026',
+                            meeting: 'Sales Team Sync',
+                            content: 'Sales team pushed back on freemium, proposed enterprise-only model instead. Concern: free users won\'t convert, revenue targets at risk. Discussion tabled pending market research.'
+                        },
+                        {
+                            date: 'March 14, 2026',
+                            meeting: 'Product Strategy Session',
+                            content: 'Final decision on three-tier structure: Free, Professional ($29/mo), Enterprise (custom). Balances growth (freemium) and revenue (paid tiers). Engineering to build feature gates.'
+                        },
+                        {
+                            date: 'March 20, 2026',
+                            meeting: 'CEO Monthly Review',
+                            content: 'CEO reaffirmed freemium approach despite sales concerns. Emphasized user acquisition over short-term revenue. Sales targets adjusted to account for conversion timeline.'
+                        },
+                        {
+                            date: 'March 26, 2026',
+                            meeting: 'Client: Acme Corp Strategy',
+                            content: 'First real-world validation: client interested in Enterprise tier at $50K-75K annual. Comparing against competitors. Proves enterprise tier is viable. Sales preparing custom proposal.'
+                        }
+                    ]
+                },
+                checkout: {
+                    name: 'Checkout Redesign',
+                    status: 'Active',
+                    timeline: [
+                        {
+                            date: 'March 10, 2026',
+                            meeting: 'Product Review',
+                            content: 'UX team proposed single-page checkout to reduce friction. Current multi-step flow identified as conversion bottleneck. Design mockups in progress.'
+                        },
+                        {
+                            date: 'March 12, 2026',
+                            meeting: 'Engineering Standup',
+                            content: 'Backend team flagged API limitations with single-page approach. Payment provider requires separate confirmation step. Technical constraint not communicated to design.'
+                        },
+                        {
+                            date: 'March 20, 2026',
+                            meeting: 'CEO Monthly Review',
+                            content: 'CEO asked for checkout status update. Reported "design in progress" without mentioning API constraint. Incomplete information given to leadership.'
+                        },
+                        {
+                            date: 'March 26, 2026',
+                            meeting: 'Client: Acme Corp Strategy',
+                            content: 'Client reported 15% cart abandonment, cited multi-step checkout as main pain point. Real-world evidence supporting redesign priority. Client data provides business case.'
+                        }
+                    ]
+                }
+            };
+
+            const topic = topicData[topicId] || topicData.pricing;
+
+            return `
+                <div class="summary-container">
+                    <button class="btn-secondary" onclick="navigateToPage('topics')" style="margin-bottom: 24px;">← Back to Topics</button>
+                    
+                    <div class="arc-timeline">
+                        <div class="arc-header">
+                            <h2 class="arc-title">${topic.name}</h2>
+                            <span class="arc-status">${topic.status}</span>
+                        </div>
+
+                        <div style="margin-bottom: 24px;">
+                            <button class="btn-secondary" style="margin-right: 8px;">💬 Chat about this arc</button>
+                            <button class="btn-secondary">🔗 Share Arc</button>
+                        </div>
+
+                        ${topic.timeline.map(item => `
+                            <div class="timeline-item">
+                                <div class="timeline-date">${item.date}</div>
+                                <div class="timeline-meeting">${item.meeting}</div>
+                                <div class="timeline-content">${item.content}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMeetings() {
+            return `
+                <div class="calendar-controls">
+                    <div class="view-toggle">
+                        <button class="view-btn active">Week</button>
+                        <button class="view-btn">Day</button>
+                        <button class="view-btn">List</button>
+                    </div>
+                </div>
+
+                <div class="meetings-list">
+                    <h3 style="margin-bottom: 20px;">This Week's Meetings</h3>
+                    ${state.meetings.map(meeting => `
+                        <div class="meeting-card ${meeting.type}" onclick="viewMeeting(${meeting.id})">
+                            <div class="meeting-time">${meeting.date} • ${meeting.time}</div>
+                            <div class="meeting-title">${meeting.title}</div>
+                            <div class="meeting-meta">
+                                <span>👥 ${meeting.participants}</span>
+                                ${meeting.hasSummary ? '<span>✅ Summary available</span>' : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderStream(streamId) {
+            const stream = state.streams.find(s => s.id === streamId) || state.streams[0];
+            const streamMeetings = state.meetings.slice(0, 3);
+
+            return `
+                <div class="stream-header">
+                    <div>
+                        <button class="btn-secondary" onclick="navigateToPage('streams')" style="margin-bottom: 12px;">← Back to Streams</button>
+                        <h2 style="font-size: 24px; font-weight: 600;">${stream.name}</h2>
+                        <p style="color: #6b7280; margin-top: 4px;">${stream.meetingCount} meetings</p>
+                    </div>
+                    <div class="stream-actions">
+                        <button class="btn-secondary">💬 Chat in Stream</button>
+                        <button class="btn-secondary">+ Add Meeting</button>
+                    </div>
+                </div>
+
+                <div class="meetings-list">
+                    ${streamMeetings.map(meeting => `
+                        <div class="meeting-card" onclick="viewMeeting(${meeting.id})">
+                            <div class="meeting-time">${meeting.date} • ${meeting.time}</div>
+                            <div class="meeting-title">${meeting.title}</div>
+                            <div class="meeting-meta">
+                                <span>👥 ${meeting.participants}</span>
+                                ${meeting.hasSummary ? '<span>✅ Summary available</span>' : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderStreams() {
+            return `
+                <div class="stream-header">
+                    <div>
+                        <h2 style="font-size: 24px; font-weight: 600;">Streams</h2>
+                        <p style="color: #6b7280; margin-top: 4px;">Organize your meetings by context</p>
+                    </div>
+                    <button class="btn-primary" onclick="openStreamModal()">+ Create Stream</button>
+                </div>
+
+                <div class="meetings-list">
+                    ${state.streams.map(stream => `
+                        <div class="meeting-card" onclick="viewStream('${stream.id}')">
+                            <div class="meeting-title">📁 ${stream.name}</div>
+                            <div class="meeting-meta">
+                                <span>${stream.meetingCount} meetings</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderTopics() {
+            return `
+                <div>
+                    <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 8px;">Topics</h2>
+                    <p style="color: #6b7280; margin-bottom: 32px;">AI-extracted topics across your meetings</p>
+                </div>
+
+                <div class="meetings-list">
+                    ${state.topics.map(topic => `
+                        <div class="meeting-card" onclick="viewTopicArc('${topic.id}')">
+                            <div class="meeting-title">🏷️ ${topic.name}</div>
+                            <div class="meeting-meta">
+                                <span>${topic.meetingCount} meetings</span>
+                                <span class="topic-arc-badge" style="margin-left: 12px;">View Arc →</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderShared() {
+            return `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📬</div>
+                    <h3>No Shared Content</h3>
+                    <p>When other Pocket Nori users share meetings or topic arcs with you, they'll appear here.</p>
+                </div>
+            `;
+        }
+
+        // Navigation logic
+        function navigateToPage(page, param) {
+            state.currentPage = page;
+            
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-page') === page) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Update page title
+            const titles = {
+                home: 'Home',
+                meetings: 'Meetings',
+                chat: 'Chat',
+                actions: 'Actions',
+                shared: 'Shared with Me',
+                streams: 'Streams',
+                topics: 'Topics',
+                meeting: 'Meeting Summary',
+                'topic-arc': 'Topic Arc'
+            };
+            document.querySelector('.page-title').textContent = titles[page] || 'Pocket Nori';
+
+            // Render content
+            const contentArea = document.getElementById('contentArea');
+            let html = '';
+
+            switch(page) {
+                case 'home':
+                    html = renderHome();
+                    break;
+                case 'meetings':
+                    html = renderMeetings();
+                    break;
+                case 'chat':
+                    html = renderChat();
+                    break;
+                case 'actions':
+                    html = renderActions();
+                    break;
+                case 'shared':
+                    html = renderShared();
+                    break;
+                case 'streams':
+                    html = renderStreams();
+                    break;
+                case 'topics':
+                    html = renderTopics();
+                    break;
+                case 'meeting':
+                    html = renderMeetingSummary(param);
+                    break;
+                case 'topic-arc':
+                    html = renderTopicArc(param);
+                    break;
+                case 'stream':
+                    html = renderStream(param);
+                    break;
+                default:
+                    html = renderHome();
+            }
+
+            contentArea.innerHTML = html;
+            contentArea.scrollTop = 0;
+        }
+
+        function viewMeeting(meetingId) {
+            navigateToPage('meeting', meetingId);
+        }
+
+        function viewTopicArc(topicId) {
+            navigateToPage('topic-arc', topicId);
+        }
+
+        function viewStream(streamId) {
+            navigateToPage('stream', streamId);
+        }
+
+        function toggleAction(actionId) {
+            const action = state.actions.find(a => a.id === actionId);
+            if (action) {
+                action.completed = !action.completed;
+                navigateToPage('actions');
+            }
+        }
+
+        // Modal functions
+        function openStreamModal() {
+            document.getElementById('streamModal').classList.add('active');
+        }
+
+        function closeStreamModal() {
+            document.getElementById('streamModal').classList.remove('active');
+            document.getElementById('streamNameInput').value = '';
+        }
+
+        function createStream() {
+            const name = document.getElementById('streamNameInput').value.trim();
+            if (name) {
+                const newStream = {
+                    id: 'stream-' + Date.now(),
+                    name: name,
+                    meetingCount: 0
+                };
+                state.streams.push(newStream);
+                
+                // Add to sidebar
+                const streamsList = document.querySelector('.streams-list');
+                const streamItem = document.createElement('div');
+                streamItem.className = 'stream-item';
+                streamItem.setAttribute('data-stream', newStream.id);
+                streamItem.textContent = name;
+                streamItem.onclick = () => viewStream(newStream.id);
+                streamsList.appendChild(streamItem);
+                
+                closeStreamModal();
+                navigateToPage('streams');
+            }
+        }
+
+        function openTopicArcModal() {
+            document.getElementById('topicArcModal').classList.add('active');
+        }
+
+        function closeTopicArcModal() {
+            document.getElementById('topicArcModal').classList.remove('active');
+            document.getElementById('arcSelector').value = '';
+            document.getElementById('newArcNameGroup').style.display = 'none';
+        }
+
+        function linkTopicToArc() {
+            const selector = document.getElementById('arcSelector');
+            if (selector.value === 'new') {
+                const newArcName = document.getElementById('newArcNameInput').value.trim();
+                if (newArcName) {
+                    alert('Topic linked to new arc: ' + newArcName);
+                    closeTopicArcModal();
+                }
+            } else if (selector.value) {
+                alert('Topic linked to existing arc');
+                closeTopicArcModal();
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Navigation items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const page = this.getAttribute('data-page');
+                    if (page) {
+                        navigateToPage(page);
+                    }
+                });
+            });
+
+            // Stream items
+            document.querySelectorAll('.stream-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const streamId = this.getAttribute('data-stream');
+                    viewStream(streamId);
+                });
+            });
+
+            // Topic items
+            document.querySelectorAll('.topic-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const topicId = this.getAttribute('data-topic');
+                    viewTopicArc(topicId);
+                });
+            });
+
+            // Add stream button
+            document.querySelector('.add-stream-btn').addEventListener('click', openStreamModal);
+
+            // Arc selector change
+            document.getElementById('arcSelector').addEventListener('change', function() {
+                const newArcGroup = document.getElementById('newArcNameGroup');
+                if (this.value === 'new') {
+                    newArcGroup.style.display = 'block';
+                } else {
+                    newArcGroup.style.display = 'none';
+                }
+            });
+
+            // Initial render
+            navigateToPage('home');
+        });
+    </script>
+</body>
+</html>
