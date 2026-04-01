@@ -1,0 +1,1 @@
+This is just a prototype that I am using in order to pitch or showcase Pocket Nori to external users. This is in no way similar to what the actual app is going to be, but just an understanding about the functionality and interaction and everything. It's just a very simple basic HTML prototype. 
